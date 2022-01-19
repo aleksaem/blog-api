@@ -1,7 +1,6 @@
 package com.luxoft.blog.controller;
 
 import com.luxoft.blog.entity.Post;
-import com.luxoft.blog.error.PostNotFoundException;
 import com.luxoft.blog.service.PostService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +30,6 @@ public class PostController {
         return postService.fetchPostsList();
     }
 
-    @GetMapping("/api/v1/posts/{id}")
-    public Post fetchPostById(@PathVariable("id") Long postId) throws PostNotFoundException {
-        LOGGER.info("Inside fetchPostById of PostController");
-        return postService.fetchPostById(postId);
-    }
-
     @PutMapping("/api/v1/posts/{id}")
     public Post updatePost(@PathVariable("id") Long postId,
                            @RequestBody Post post) {
@@ -45,10 +38,15 @@ public class PostController {
     }
 
     @DeleteMapping("/api/v1/posts/{id}")
-    public String deletePostById(@PathVariable("id") Long postId){
+    public String deletePostById(@PathVariable("id") Long postId) {
         LOGGER.info("Inside deletePostById of PostController");
         postService.deletePostById(postId);
         return "Post with id " + postId + " was deleted successfully!";
+    }
+
+    @GetMapping("/api/v1/posts/title/{title}")
+    public Post fetchPostByTitle(@PathVariable("title") String postTitle) {
+        return postService.fetchPostByTitle(postTitle);
     }
 
 }

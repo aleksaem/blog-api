@@ -1,7 +1,6 @@
 package com.luxoft.blog.service;
 
 import com.luxoft.blog.entity.Post;
-import com.luxoft.blog.error.PostNotFoundException;
 import com.luxoft.blog.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +17,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Post savePost(Post post) {
-        return postRepository.save(post);
+            return postRepository.save(post);
     }
 
     @Override
@@ -31,12 +30,12 @@ public class PostServiceImpl implements PostService {
         Post postFromDB = postRepository.findById(postId).get();
 
         if (Objects.nonNull(post.getPostTitle()) &&
-                !"".equalsIgnoreCase(post.getPostTitle())){
+                !"".equalsIgnoreCase(post.getPostTitle())) {
             postFromDB.setPostTitle(post.getPostTitle());
         }
 
         if (Objects.nonNull(post.getPostContent()) &&
-                !"".equalsIgnoreCase(post.getPostContent())){
+                !"".equalsIgnoreCase(post.getPostContent())) {
             postFromDB.setPostContent(post.getPostContent());
         }
 
@@ -44,19 +43,13 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post fetchPostById(Long postId) throws PostNotFoundException {
-        Optional<Post> post = postRepository.findById(postId);
-
-        if (!post.isPresent()) {
-            throw new PostNotFoundException("Post Not Available!");
-        } else {
-            return post.get();
-        }
+    public void deletePostById(Long postId) {
+        postRepository.deleteById(postId);
     }
 
     @Override
-    public void deletePostById(Long postId) {
-        postRepository.deleteById(postId);
+    public Post fetchPostByTitle(String postTitle) {
+        return postRepository.findByPostTitleIgnoreCase(postTitle);
     }
 
 
