@@ -14,5 +14,15 @@ public interface PostService {
 
     public void deletePostById(Long postId);
 
-    public Post fetchPostByTitle(String postTitle);
+    public List<Post> fetchPostsByTitle(String postTitle);
+
+    public Post setStarToPostWithId(Long postId);
+
+    public Post deleteStarFromPostWithId(Long postId);
+
+    public List<Post> fetchPostsWithStar(boolean star);
+
+    public List<Post> sortPostsByTitle();
+
+    public Post fetchPostById(Long postId);
 }

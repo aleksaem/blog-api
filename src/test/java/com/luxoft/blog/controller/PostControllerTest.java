@@ -33,6 +33,7 @@ class PostControllerTest {
                 .postId(1L)
                 .postTitle("Music")
                 .postContent("There are a lot of different kinds of music.")
+                .star(true)
                 .build();
     }
 
@@ -41,16 +42,18 @@ class PostControllerTest {
         Post inputPost = Post.builder()
                 .postTitle("Music")
                 .postContent("There are a lot of different kinds of music.")
+                .star(true)
                 .build();
 
         when(postService.savePost(inputPost)).thenReturn(post);
 
         mockMvc.perform(post("/api/v1/posts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\n" +
-                        "\t\"postTitle\":\"Music\",\n" +
-                        "\t\"postContent\":\"There are a lot of different kinds of music.\"\n" +
-                        "}"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\n" +
+                                "\t\"postTitle\":\"Music\",\n" +
+                                "\t\"postContent\":\"There are a lot of different kinds of music.\",\n" +
+                                "\t\"star\":\"true\"\n" +
+                                "}"))
                 .andExpect(status().isOk());
     }
 

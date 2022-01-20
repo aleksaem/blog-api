@@ -9,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 @SpringBootTest
 class PostServiceTest {
@@ -25,34 +27,40 @@ class PostServiceTest {
     void setUp() {
         Post firstPost = Post.builder()
                 .postId(1L)
-                .postTitle("Music")
-                .postContent("There are a lot of different kinds of music.")
+                .postTitle("Films")
+                .postContent("Films are soo cool")
+                .star(true)
                 .build();
 
         Post secondPost = Post.builder()
                 .postId(2L)
                 .postTitle("Films")
                 .postContent("There are a lot of different kinds of films.")
+                .star(false)
                 .build();
 
-        Mockito.when(postService.fetchPostByTitle("Films")).thenReturn(secondPost);
+        List<Post> posts = new ArrayList<>();
+        posts.add(firstPost);
+        posts.add(secondPost);
+
+        Mockito.when(postService.fetchPostsByTitle("Films")).thenReturn(posts);
 
     }
 
     @Test
     void whenValidPostTitle_thenPostShouldBeFound() {
         String title = "Films";
-        Post foundPost = postService.fetchPostByTitle(title);
+        List<Post> foundPosts = postService.fetchPostsByTitle(title);
 
-        assertEquals(title, foundPost.getPostTitle());
+        assertEquals(2, foundPosts.size());
     }
 
     @Test
     void whenInvalidPostTitle_thenPostShouldNotBeFound() {
         String title = "Food";
-        Post foundPost = postService.fetchPostByTitle(title);
+        List<Post> foundPosts = postService.fetchPostsByTitle(title);
 
-        assertNull(foundPost);
+        assertEquals(0, foundPosts.size());
     }
 
 }

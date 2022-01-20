@@ -26,16 +26,19 @@ class PostRepositoryTest {
         Post firstPost = Post.builder()
                 .postTitle("Music")
                 .postContent("There are a lot of different kinds of music.")
+                .star(false)
                 .build();
 
         Post secondPost = Post.builder()
                 .postTitle("Food")
                 .postContent("Delicious...")
+                .star(true)
                 .build();
 
         Post thirdPost = Post.builder()
-                .postTitle("Films")
-                .postContent("What kind of movies do you like?")
+                .postTitle("Food")
+                .postContent("Tasty)")
+                .star(false)
                 .build();
 
         entityManager.persist(firstPost);
@@ -44,13 +47,19 @@ class PostRepositoryTest {
     }
 
     @Test
-    public void whenFindByTitle_thenReturnPost(){
-        Post post = postRepository.findByPostTitleIgnoreCase("Music");
+    public void whenFindByTitle_thenReturnPost() {
+        Post post = postRepository.findByPostTitle("Music").get();
         assertEquals(post.getPostContent(), "There are a lot of different kinds of music.");
     }
 
     @Test
-    public void fetchAllPostsAndDeleteByIdIsSuccessful(){
+    public void whenFindByWrongTitle_thenReturnEmptyPost() {
+        Optional<Post> post = postRepository.findByPostTitle("Sport");
+        assertFalse(post.isPresent());
+    }
+
+    @Test
+    public void fetchAllPostsAndDeleteByIdIsSuccessful() {
         List<Post> posts = postRepository.findAll();
 
         assertEquals(3, posts.size());
@@ -62,7 +71,7 @@ class PostRepositoryTest {
     }
 
     @Test
-    public void savePostIsSuccessful(){
+    public void savePostIsSuccessful() {
         Post newPost = Post.builder()
                 .postTitle("Sport")
                 .postContent("It`s so hard")
@@ -73,5 +82,19 @@ class PostRepositoryTest {
         assertEquals(4, posts.size());
         assertEquals("Sport", posts.get(3).getPostTitle());
         assertEquals("It`s so hard", posts.get(3).getPostContent());
+    }
+
+    @Test
+    public void whenFindPostsByTitle_thenReturnListOfPosts() {
+        List<Post> postsWithTitleFood = postRepository.findByPostTitleIgnoreCase("Food");
+
+        assertEquals(2, postsWithTitleFood.size());
+    }
+
+    @Test
+    public void whenFetchPostsByStar_thenReturnListOfPosts() {
+        List<Post> postsWithStar = postRepository.findByStar(true);
+
+        assertEquals(1, postsWithStar.size());
     }
 }

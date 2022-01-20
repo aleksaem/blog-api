@@ -4,11 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
 @Entity
@@ -24,5 +22,11 @@ public class Post {
 
     @NotBlank(message = "Please Add Post Title")
     private String postTitle;
+
+    @Length(max = 3000)
+    @NotBlank(message = "Please Add Content")
     private String postContent;
+
+    @Column(columnDefinition = "boolean default false")
+    private boolean star;
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
+@RequestMapping("/api/v1/posts")
 @RestController
 public class PostController {
 
@@ -18,35 +19,60 @@ public class PostController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(PostController.class);
 
-    @PostMapping("/api/v1/posts")
+    @PostMapping
     public Post savePost(@RequestBody @Valid Post post) {
         LOGGER.info("Inside savePost of PostController");
         return postService.savePost(post);
     }
 
-    @GetMapping("/api/v1/posts")
-    public List<Post> fetchPostsList() {
+    @GetMapping
+    public List<Post> fetchPostsList(@RequestParam(value = "postTitle", required = false) String postTitle,
+                                     @RequestParam(value = "sort", required = false) boolean sort) {
         LOGGER.info("Inside fetchPostsList of PostController");
-        return postService.fetchPostsList();
+        if (postTitle != null) {
+            return postService.fetchPostsByTitle(postTitle);
+        } else if (sort) {
+            return postService.sortPostsByTitle();
+        } else {
+            return postService.fetchPostsList();
+        }
     }
 
-    @PutMapping("/api/v1/posts/{id}")
+    @PutMapping("/{id}")
     public Post updatePost(@PathVariable("id") Long postId,
                            @RequestBody Post post) {
         LOGGER.info("Inside updatePost of PostController");
         return postService.updatePost(postId, post);
     }
 
-    @DeleteMapping("/api/v1/posts/{id}")
-    public String deletePostById(@PathVariable("id") Long postId) {
+    @DeleteMapping("/{id}")
+    public void deletePostById(@PathVariable("id") Long postId) {
         LOGGER.info("Inside deletePostById of PostController");
         postService.deletePostById(postId);
-        return "Post with id " + postId + " was deleted successfully!";
     }
 
-    @GetMapping("/api/v1/posts/title/{title}")
-    public Post fetchPostByTitle(@PathVariable("title") String postTitle) {
-        return postService.fetchPostByTitle(postTitle);
+    @PutMapping("/{id}/star")
+    public Post setStarToPostWithId(@PathVariable("id") Long postId) {
+        LOGGER.info("Inside setStarToPostWithId of PostController");
+        return postService.setStarToPostWithId(postId);
+    }
+
+    @DeleteMapping("/{id}/star")
+    public Post deleteStarFromPostWithId(@PathVariable("id") Long postId) {
+        LOGGER.info("Inside deleteStarFromPostWithId of PostController");
+        return postService.deleteStarFromPostWithId(postId);
+    }
+
+    @GetMapping("/star")
+    public List<Post> fetchPostsWithStar() {
+        LOGGER.info("Inside fetchPostsWithStar of PostController");
+        return postService.fetchPostsWithStar(true);
+    }
+
+    @GetMapping("/{id}")
+    public Post fetchPostById(@PathVariable("id") Long postId) {
+        LOGGER.info("Inside fetchPostById of PostController");
+        return postService.fetchPostById(postId);
     }
 
 }
