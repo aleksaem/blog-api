@@ -6,23 +6,23 @@ import java.util.List;
 
 public interface PostService {
 
-    public Post savePost(Post post);
+    void savePost(Post post);
 
-    public List<Post> fetchPostsList();
+    List<Post> fetchPostsList();
 
-    public Post updatePost(Long postId, Post post);
+    void updatePost(Long postId, Post post);
 
-    public void deletePostById(Long postId);
+    void deletePostById(Long postId);
 
-    public List<Post> fetchPostsByTitle(String postTitle);
+    List<Post> fetchPostsByTitle(String postTitle);
 
-    public Post setStarToPostWithId(Long postId);
+    void setStarToPostWithId(Long postId);
 
-    public Post deleteStarFromPostWithId(Long postId);
+    void deleteStarFromPostWithId(Long postId);
 
-    public List<Post> fetchPostsWithStar(boolean star);
+    List<Post> fetchPostsWithStar(boolean star);
 
-    public List<Post> sortPostsByTitle();
+    List<Post> sortPostsByTitle();
 
-    public Post fetchPostById(Long postId);
+    Post fetchPostById(Long postId);
 }
