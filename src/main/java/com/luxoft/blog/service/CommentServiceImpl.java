@@ -60,7 +60,7 @@ public class CommentServiceImpl implements CommentService {
         return toCommentWithPostDto(comment);
     }
 
-    private CommentWithPostDto toCommentWithPostDto(Comment comment){
+    private CommentWithPostDto toCommentWithPostDto(Comment comment) {
         CommentWithPostDto commentWithPostDto = new CommentWithPostDto();
         commentWithPostDto.setCommentId(comment.getCommentId());
         commentWithPostDto.setContent(comment.getContent());

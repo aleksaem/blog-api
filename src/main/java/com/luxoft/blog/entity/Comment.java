@@ -30,7 +30,7 @@ public class Comment {
     private Post post;
 
     @CreatedDate
-    private LocalDateTime creationDate;
+    private LocalDateTime creationDate = LocalDateTime.now();
 
     @Length(max = 1000)
     @NotBlank(message = "Please Add Content")

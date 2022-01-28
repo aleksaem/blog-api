@@ -4,13 +4,16 @@ package com.luxoft.blog.service;
 import com.luxoft.blog.entity.Post;
 import com.luxoft.blog.repository.PostRepository;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Sort;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -68,10 +71,11 @@ class PostServiceTest {
         List<Post> foundPosts = postService.fetchPostsByTitle(title);
 
         assertEquals(0, foundPosts.size());
+        verify(postRepository, times(1)).findByPostTitleIgnoreCase(title);
     }
 
     @Test
-    void testFetchPostsList(){
+    void testFetchPostsList() {
         Post firstPost = Post.builder()
                 .postId(1L)
                 .postTitle("Films")
@@ -94,11 +98,12 @@ class PostServiceTest {
         assertEquals(2, postsFromDB.size());
         assertEquals("Cartoons", postsFromDB.get(1).getPostTitle());
         assertTrue(postsFromDB.get(0).isStar());
+        verify(postRepository, times(1)).findAll();
 
     }
 
     @Test
-    void testSavePost(){
+    void testSavePost() {
         Post post1 = Post.builder()
                 .postTitle("Films")
                 .postContent("Films are soo cool")
@@ -128,7 +133,7 @@ class PostServiceTest {
     }
 
     @Test
-    void testEditPost(){
+    void testEditPost() {
         Post originalPost = Post.builder()
                 .postId(1L)
                 .postTitle("Films")
@@ -142,34 +147,124 @@ class PostServiceTest {
     }
 
     @Test
-    void testDeletePost(){
-        postService.deletePostById(1L);
+    void testSetStarToPostWithId(){
+        Post postWithoutStar = Post.builder()
+                .postId(1L)
+                .postTitle("Films")
+                .postContent("Films are soo cool")
+                .star(false)
+                .build();
 
-        Mockito.verify(postRepository, times(1)).deleteById(1L);
+        when(postRepository.findById(1L)).thenReturn(Optional.ofNullable(postWithoutStar));
+
+        Post postToEdit = postService.fetchPostById(1L);
+        postService.setStarToPostWithId(postToEdit.getPostId());
+
+        assertTrue(postToEdit.isStar());
+        verify(postRepository, times(1)).save(postToEdit);
     }
 
-//    @Test
-//    void testSetStarToPostWithId(){
-//
-//    }
-//
-//    @Test
-//    void testDeleteStarFromPostWithId(){
-//
-//    }
-//
-//    @Test
-//    void testFetchPostsWithStar(){
-//
-//    }
-//
-//    @Test
-//    void testSortPostsByTitle(){
-//
-//    }
-//
-//    @Test
-//    void testFetchPostById(){
-//
-//    }
+    @Test
+    void testDeleteStarFromPostWithId(){
+        Post postWithStar = Post.builder()
+                .postId(1L)
+                .postTitle("Films")
+                .postContent("Films are soo cool")
+                .star(true)
+                .build();
+
+        when(postRepository.findById(1L)).thenReturn(Optional.ofNullable(postWithStar));
+
+        Post postToEdit = postService.fetchPostById(1L);
+        postService.deleteStarFromPostWithId(postToEdit.getPostId());
+
+        assertFalse(postToEdit.isStar());
+        verify(postRepository, times(1)).save(postToEdit);
+    }
+
+    @Test
+    void testFetchPostsWithStar(){
+        Post postWithStar_1 = Post.builder()
+                .postId(1L)
+                .postTitle("Films")
+                .postContent("Films are soo cool")
+                .star(true)
+                .build();
+
+        Post postWithStar_2 = Post.builder()
+                .postId(2L)
+                .postTitle("Films")
+                .postContent("I like films")
+                .star(true)
+                .build();
+
+        List<Post> posts = List.of(postWithStar_1, postWithStar_2);
+        when(postRepository.findByStar(true)).thenReturn(posts);
+
+        List<Post> postsWithStar = postService.fetchPostsWithStar(true);
+        assertNotNull(postsWithStar);
+        assertEquals(2, postsWithStar.size());
+        assertEquals("Films", postsWithStar.get(0).getPostTitle());
+        assertEquals("I like films", postsWithStar.get(1).getPostContent());
+        verify(postRepository, times(1)).findByStar(true);
+    }
+
+    @Test
+    void testSortPostsByTitle(){
+        Post post_1 = Post.builder()
+                .postId(1L)
+                .postTitle("Films")
+                .postContent("I like films")
+                .star(true)
+                .build();
+
+        Post post_2 = Post.builder()
+                .postId(2L)
+                .postTitle("Animals")
+                .postContent("I like animals")
+                .star(false)
+                .build();
+
+        Post post_3 = Post.builder()
+                .postId(3L)
+                .postTitle("Cartoons")
+                .postContent("I like cartoons")
+                .star(true)
+                .build();
+
+        List<Post> posts = List.of(post_2, post_3, post_1);
+        when(postRepository.findAll(Sort.by(Sort.Direction.ASC, "postTitle"))).thenReturn(posts);
+
+        List<String> postTitles = new ArrayList<>(List.of(post_1.getPostTitle(), post_2.getPostTitle(), post_3.getPostTitle()));
+        Collections.sort(postTitles);
+
+        List<Post> sortedPosts = postService.sortPostsByTitle();
+        assertNotNull(sortedPosts);
+        assertEquals(3, sortedPosts.size());
+        assertEquals(postTitles.get(0), sortedPosts.get(0).getPostTitle());
+        assertEquals(postTitles.get(1), sortedPosts.get(1).getPostTitle());
+        assertEquals(postTitles.get(2), sortedPosts.get(2).getPostTitle());
+        verify(postRepository, times(1)).findAll(Sort.by(Sort.Direction.ASC, "postTitle"));
+
+    }
+
+    @Test
+    void testFetchPostById(){
+        Post post = Post.builder()
+                .postId(1L)
+                .postTitle("Films")
+                .postContent("I like films")
+                .star(true)
+                .build();
+
+        when(postRepository.findById(1L)).thenReturn(Optional.ofNullable(post));
+
+        Post foundPost = postService.fetchPostById(1L);
+        assertNotNull(foundPost);
+        assertEquals("Films", foundPost.getPostTitle());
+        assertEquals("I like films", foundPost.getPostContent());
+        assertTrue(foundPost.isStar());
+        verify(postRepository, times(1)).findById(1L);
+
+    }
 }

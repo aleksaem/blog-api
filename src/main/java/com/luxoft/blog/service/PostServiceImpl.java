@@ -1,6 +1,8 @@
 package com.luxoft.blog.service;
 
+import com.luxoft.blog.entity.Comment;
 import com.luxoft.blog.entity.Post;
+import com.luxoft.blog.repository.CommentRepository;
 import com.luxoft.blog.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -14,6 +16,9 @@ public class PostServiceImpl implements PostService {
 
     @Autowired
     private PostRepository postRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Override
     public void savePost(Post post) {
@@ -34,7 +39,18 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void deletePostById(Long postId) {
-        postRepository.deleteById(postId);
+        Optional<Post> postToDelete = postRepository.findById(postId);
+        if (postToDelete.isPresent()) {
+            if (postToDelete.get().getComments().isEmpty()) {
+                postRepository.deleteById(postId);
+            } else {
+                List<Comment> comments = commentRepository.findAllByPost(postRepository.getById(postId));
+                commentRepository.deleteAll(comments);
+                postRepository.delete(postToDelete.get());
+            }
+        } else {
+            throw new RuntimeException("Post Cannot Be Found");
+        }
     }
 
     @Override
