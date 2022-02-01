@@ -3,6 +3,7 @@ package com.luxoft.blog.controller;
 import com.luxoft.blog.dto.CommentWithPostDto;
 import com.luxoft.blog.dto.CommentWithoutPostDto;
 import com.luxoft.blog.dto.PostWithCommentsDto;
+import com.luxoft.blog.dto.PostWithoutCommentDto;
 import com.luxoft.blog.entity.Comment;
 import com.luxoft.blog.entity.Post;
 import com.luxoft.blog.service.CommentService;
@@ -99,14 +100,21 @@ public class PostController {
     @GetMapping("/{id}/comments")
     public List<CommentWithPostDto> fetchAllComments(@PathVariable("id") Long postId) {
         LOGGER.info("Inside fetchAllComments of PostController");
-        return commentService.fetchAllComments(postId);
+        List<Comment> comments = commentService.fetchAllComments(postId);
+
+        List<CommentWithPostDto> commentsDto = new ArrayList<>();
+        for (Comment comment : comments) {
+            commentsDto.add(toCommentWithPostDto(comment));
+        }
+        return commentsDto;
     }
 
     @GetMapping("/{id}/comments/{commentId}")
     public CommentWithPostDto fetchComment(@PathVariable("id") Long postId,
                                            @PathVariable("commentId") Long commentId) {
         LOGGER.info("Inside fetchComment of PostController");
-        return commentService.fetchComment(postId, commentId);
+        Comment comment = commentService.fetchComment(postId, commentId);
+        return toCommentWithPostDto(comment);
     }
 
     private List<PostWithCommentsDto> getPostsWithComments(List<Post> posts) {
@@ -117,21 +125,13 @@ public class PostController {
 
             if (!comments.isEmpty()) {
                 for (Comment comment : comments) {
-                    CommentWithoutPostDto commentWithoutPostDto = new CommentWithoutPostDto();
-                    commentWithoutPostDto.setCommentId(comment.getCommentId());
-                    commentWithoutPostDto.setContent(comment.getContent());
-                    commentWithoutPostDto.setCreationDate(comment.getCreationDate());
+                    CommentWithoutPostDto commentWithoutPostDto = toCommentWithoutPostDto(comment);
 
                     commentWithoutPostDtos.add(commentWithoutPostDto);
                 }
             }
 
-            PostWithCommentsDto postWithCommentsDto = new PostWithCommentsDto();
-            postWithCommentsDto.setId(post.getPostId());
-            postWithCommentsDto.setTitle(post.getPostTitle());
-            postWithCommentsDto.setContent(post.getPostContent());
-            postWithCommentsDto.setStar(post.isStar());
-            postWithCommentsDto.setComments(commentWithoutPostDtos);
+            PostWithCommentsDto postWithCommentsDto = toPostWithCommentsDto(post, commentWithoutPostDtos);
 
             postsWithComments.add(postWithCommentsDto);
         }
@@ -139,29 +139,56 @@ public class PostController {
     }
 
     private PostWithCommentsDto getPostWithComments(Post post) {
-        PostWithCommentsDto postWithComments = new PostWithCommentsDto();
+        PostWithCommentsDto postWithComments;
 
         List<Comment> comments = post.getComments();
         List<CommentWithoutPostDto> commentWithoutPostDtos = new ArrayList<>();
 
         if (!comments.isEmpty()) {
             for (Comment comment : comments) {
-                CommentWithoutPostDto commentWithoutPostDto = new CommentWithoutPostDto();
-                commentWithoutPostDto.setCommentId(comment.getCommentId());
-                commentWithoutPostDto.setContent(comment.getContent());
-                commentWithoutPostDto.setCreationDate(comment.getCreationDate());
+                CommentWithoutPostDto commentWithoutPostDto = toCommentWithoutPostDto(comment);
 
                 commentWithoutPostDtos.add(commentWithoutPostDto);
             }
         }
-
-        postWithComments.setId(post.getPostId());
-        postWithComments.setTitle(post.getPostTitle());
-        postWithComments.setContent(post.getPostContent());
-        postWithComments.setStar(post.isStar());
-        postWithComments.setComments(commentWithoutPostDtos);
-
+        postWithComments = toPostWithCommentsDto(post, commentWithoutPostDtos);
 
         return postWithComments;
+    }
+
+    private CommentWithoutPostDto toCommentWithoutPostDto(Comment comment) {
+        CommentWithoutPostDto commentWithoutPostDto = new CommentWithoutPostDto();
+        commentWithoutPostDto.setCommentId(comment.getCommentId());
+        commentWithoutPostDto.setContent(comment.getContent());
+        commentWithoutPostDto.setCreationDate(comment.getCreationDate());
+        return commentWithoutPostDto;
+    }
+
+    private PostWithCommentsDto toPostWithCommentsDto(Post post, List<CommentWithoutPostDto> commentWithoutPostDtos) {
+        PostWithCommentsDto postWithCommentsDto = new PostWithCommentsDto();
+        postWithCommentsDto.setId(post.getPostId());
+        postWithCommentsDto.setTitle(post.getPostTitle());
+        postWithCommentsDto.setContent(post.getPostContent());
+        postWithCommentsDto.setStar(post.isStar());
+        postWithCommentsDto.setComments(commentWithoutPostDtos);
+        return postWithCommentsDto;
+    }
+
+    private CommentWithPostDto toCommentWithPostDto(Comment comment) {
+        CommentWithPostDto commentWithPostDto = new CommentWithPostDto();
+        commentWithPostDto.setCommentId(comment.getCommentId());
+        commentWithPostDto.setContent(comment.getContent());
+        commentWithPostDto.setCreationDate(comment.getCreationDate());
+
+        Post post = comment.getPost();
+        PostWithoutCommentDto postWithoutCommentDto = new PostWithoutCommentDto();
+        postWithoutCommentDto.setPostId(post.getPostId());
+        postWithoutCommentDto.setPostTitle(post.getPostTitle());
+        postWithoutCommentDto.setPostContent(post.getPostContent());
+        postWithoutCommentDto.setStar(post.isStar());
+
+        commentWithPostDto.setPostWithoutCommentDto(postWithoutCommentDto);
+
+        return commentWithPostDto;
     }
 }

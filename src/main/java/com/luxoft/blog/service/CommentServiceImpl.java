@@ -23,12 +23,12 @@ public class CommentServiceImpl implements CommentService {
     PostRepository postRepository;
 
     @Override
-    public CommentWithPostDto saveComment(Long postId, Comment comment) {
+    public Comment saveComment(Long postId, Comment comment) {
         Post postFromDB = findPostById(postId);
         comment.setPost(postFromDB);
 
         Comment savedComment = commentRepository.save(comment);
-        return toCommentWithPostDto(savedComment);
+        return savedComment;
     }
 
     private Post findPostById(Long postId) {
@@ -41,7 +41,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentWithPostDto> fetchAllComments(Long postId) {
+    public List<Comment> fetchAllComments(Long postId) {
         Post postfromDB = findPostById(postId);
         List<Comment> comments = commentRepository.findAllByPost(postfromDB);
 
@@ -49,15 +49,15 @@ public class CommentServiceImpl implements CommentService {
         for (Comment comment : comments) {
             commentsDto.add(toCommentWithPostDto(comment));
         }
-        return commentsDto;
+        return comments;
     }
 
     @Override
-    public CommentWithPostDto fetchComment(Long postId, Long commentId) {
+    public Comment fetchComment(Long postId, Long commentId) {
         Post postFromDB = findPostById(postId);
         Comment comment = commentRepository.findByCommentIdAndPost(commentId, postFromDB);
 
-        return toCommentWithPostDto(comment);
+        return comment;
     }
 
     private CommentWithPostDto toCommentWithPostDto(Comment comment) {
