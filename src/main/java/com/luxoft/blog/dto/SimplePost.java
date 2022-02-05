@@ -3,7 +3,7 @@ package com.luxoft.blog.dto;
 import lombok.Data;
 
 @Data
-public class PostWithoutCommentDto {
+public class SimplePost {
 
     private Long postId;
 

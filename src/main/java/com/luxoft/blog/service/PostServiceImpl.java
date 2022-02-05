@@ -2,8 +2,10 @@ package com.luxoft.blog.service;
 
 import com.luxoft.blog.entity.Comment;
 import com.luxoft.blog.entity.Post;
+import com.luxoft.blog.entity.Tag;
 import com.luxoft.blog.repository.CommentRepository;
 import com.luxoft.blog.repository.PostRepository;
+import com.luxoft.blog.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;

@@ -1,12 +1,11 @@
 package com.luxoft.blog.controller;
 
-import com.luxoft.blog.dto.CommentWithPostDto;
 import com.luxoft.blog.dto.CommentWithoutPostDto;
-import com.luxoft.blog.dto.PostWithCommentsDto;
-import com.luxoft.blog.dto.PostWithoutCommentDto;
+import com.luxoft.blog.dto.FullPostDto;
+import com.luxoft.blog.dto.TagWithoutPostsDto;
 import com.luxoft.blog.entity.Comment;
 import com.luxoft.blog.entity.Post;
-import com.luxoft.blog.service.CommentService;
+import com.luxoft.blog.entity.Tag;
 import com.luxoft.blog.service.PostService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RequestMapping("/api/v1/posts")
 @RestController
@@ -23,9 +24,6 @@ public class PostController {
 
     @Autowired
     private PostService postService;
-
-    @Autowired
-    private CommentService commentService;
 
     private final Logger LOGGER = LoggerFactory.getLogger(PostController.class);
 
@@ -36,18 +34,18 @@ public class PostController {
     }
 
     @GetMapping
-    public List<PostWithCommentsDto> fetchPostsList(@RequestParam(value = "postTitle", required = false) String postTitle,
-                                                    @RequestParam(value = "sort", required = false) boolean sort) {
+    public List<FullPostDto> fetchPostsList(@RequestParam(value = "postTitle", required = false) String postTitle,
+                                            @RequestParam(value = "sort", required = false) boolean sort) {
         LOGGER.info("Inside fetchPostsList of PostController");
         if (postTitle != null) {
             List<Post> posts = postService.fetchPostsByTitle(postTitle);
-            return getPostsWithComments(posts);
+            return getFullPosts(posts);
         } else if (sort) {
             List<Post> posts = postService.sortPostsByTitle();
-            return getPostsWithComments(posts);
+            return getFullPosts(posts);
         } else {
             List<Post> posts = postService.fetchPostsList();
-            return getPostsWithComments(posts);
+            return getFullPosts(posts);
         }
     }
 
@@ -77,51 +75,26 @@ public class PostController {
     }
 
     @GetMapping("/star")
-    public List<PostWithCommentsDto> fetchPostsWithStar() {
+    public List<FullPostDto> fetchPostsWithStar() {
         LOGGER.info("Inside fetchPostsWithStar of PostController");
         List<Post> posts = postService.fetchPostsWithStar(true);
-        return getPostsWithComments(posts);
+        return getFullPosts(posts);
     }
 
     @GetMapping("/{id}")
-    public PostWithCommentsDto fetchPostById(@PathVariable("id") Long postId) {
+    public FullPostDto fetchPostById(@PathVariable("id") Long postId) {
         LOGGER.info("Inside fetchPostById of PostController");
         Post post = postService.fetchPostById(postId);
-        return getPostWithComments(post);
+        return getFullPost(post);
     }
 
-    @PostMapping("/{id}/comments")
-    public void saveComment(@PathVariable("id") Long postId,
-                            @RequestBody @Valid Comment comment) {
-        LOGGER.info("Inside saveComment of PostController");
-        commentService.saveComment(postId, comment);
-    }
-
-    @GetMapping("/{id}/comments")
-    public List<CommentWithPostDto> fetchAllComments(@PathVariable("id") Long postId) {
-        LOGGER.info("Inside fetchAllComments of PostController");
-        List<Comment> comments = commentService.fetchAllComments(postId);
-
-        List<CommentWithPostDto> commentsDto = new ArrayList<>();
-        for (Comment comment : comments) {
-            commentsDto.add(toCommentWithPostDto(comment));
-        }
-        return commentsDto;
-    }
-
-    @GetMapping("/{id}/comments/{commentId}")
-    public CommentWithPostDto fetchComment(@PathVariable("id") Long postId,
-                                           @PathVariable("commentId") Long commentId) {
-        LOGGER.info("Inside fetchComment of PostController");
-        Comment comment = commentService.fetchComment(postId, commentId);
-        return toCommentWithPostDto(comment);
-    }
-
-    private List<PostWithCommentsDto> getPostsWithComments(List<Post> posts) {
-        List<PostWithCommentsDto> postsWithComments = new ArrayList<>();
+    private List<FullPostDto> getFullPosts(List<Post> posts) {
+        List<FullPostDto> postsWithComments = new ArrayList<>();
         for (Post post : posts) {
             List<Comment> comments = post.getComments();
+            Set<Tag> tags = post.getTags();
             List<CommentWithoutPostDto> commentWithoutPostDtos = new ArrayList<>();
+            Set<TagWithoutPostsDto> tagWithoutPostsDtos = new HashSet<>();
 
             if (!comments.isEmpty()) {
                 for (Comment comment : comments) {
@@ -131,18 +104,28 @@ public class PostController {
                 }
             }
 
-            PostWithCommentsDto postWithCommentsDto = toPostWithCommentsDto(post, commentWithoutPostDtos);
+            if (!tags.isEmpty()) {
+                for (Tag tag : tags) {
+                    TagWithoutPostsDto tagWithoutPostsDto = toTagWithoutPostsDto(tag);
 
-            postsWithComments.add(postWithCommentsDto);
+                    tagWithoutPostsDtos.add(tagWithoutPostsDto);
+                }
+            }
+
+            FullPostDto fullPostDto = toPostWithCommentsDto(post, commentWithoutPostDtos, tagWithoutPostsDtos);
+
+            postsWithComments.add(fullPostDto);
         }
         return postsWithComments;
     }
 
-    private PostWithCommentsDto getPostWithComments(Post post) {
-        PostWithCommentsDto postWithComments;
+    private FullPostDto getFullPost(Post post) {
+        FullPostDto postWithComments;
 
         List<Comment> comments = post.getComments();
+        Set<Tag> tags = post.getTags();
         List<CommentWithoutPostDto> commentWithoutPostDtos = new ArrayList<>();
+        Set<TagWithoutPostsDto> tagWithoutPostsDtos = new HashSet<>();
 
         if (!comments.isEmpty()) {
             for (Comment comment : comments) {
@@ -151,7 +134,16 @@ public class PostController {
                 commentWithoutPostDtos.add(commentWithoutPostDto);
             }
         }
-        postWithComments = toPostWithCommentsDto(post, commentWithoutPostDtos);
+
+        if (!tags.isEmpty()) {
+            for (Tag tag : tags) {
+                TagWithoutPostsDto tagWithoutPostsDto = toTagWithoutPostsDto(tag);
+
+                tagWithoutPostsDtos.add(tagWithoutPostsDto);
+            }
+        }
+
+        postWithComments = toPostWithCommentsDto(post, commentWithoutPostDtos, tagWithoutPostsDtos);
 
         return postWithComments;
     }
@@ -164,31 +156,22 @@ public class PostController {
         return commentWithoutPostDto;
     }
 
-    private PostWithCommentsDto toPostWithCommentsDto(Post post, List<CommentWithoutPostDto> commentWithoutPostDtos) {
-        PostWithCommentsDto postWithCommentsDto = new PostWithCommentsDto();
-        postWithCommentsDto.setId(post.getPostId());
-        postWithCommentsDto.setTitle(post.getPostTitle());
-        postWithCommentsDto.setContent(post.getPostContent());
-        postWithCommentsDto.setStar(post.isStar());
-        postWithCommentsDto.setComments(commentWithoutPostDtos);
-        return postWithCommentsDto;
+    private TagWithoutPostsDto toTagWithoutPostsDto(Tag tag) {
+        TagWithoutPostsDto tagWithoutPostsDto = new TagWithoutPostsDto();
+        tagWithoutPostsDto.setTagId(tag.getTagId());
+        tagWithoutPostsDto.setTagName(tag.getTagName());
+        return tagWithoutPostsDto;
     }
 
-    private CommentWithPostDto toCommentWithPostDto(Comment comment) {
-        CommentWithPostDto commentWithPostDto = new CommentWithPostDto();
-        commentWithPostDto.setCommentId(comment.getCommentId());
-        commentWithPostDto.setContent(comment.getContent());
-        commentWithPostDto.setCreationDate(comment.getCreationDate());
-
-        Post post = comment.getPost();
-        PostWithoutCommentDto postWithoutCommentDto = new PostWithoutCommentDto();
-        postWithoutCommentDto.setPostId(post.getPostId());
-        postWithoutCommentDto.setPostTitle(post.getPostTitle());
-        postWithoutCommentDto.setPostContent(post.getPostContent());
-        postWithoutCommentDto.setStar(post.isStar());
-
-        commentWithPostDto.setPostWithoutCommentDto(postWithoutCommentDto);
-
-        return commentWithPostDto;
+    private FullPostDto toPostWithCommentsDto(Post post, List<CommentWithoutPostDto> commentWithoutPostDtos,
+                                              Set<TagWithoutPostsDto> tagWithoutPostsDtos) {
+        FullPostDto fullPostDto = new FullPostDto();
+        fullPostDto.setId(post.getPostId());
+        fullPostDto.setTitle(post.getPostTitle());
+        fullPostDto.setContent(post.getPostContent());
+        fullPostDto.setStar(post.isStar());
+        fullPostDto.setComments(commentWithoutPostDtos);
+        fullPostDto.setTags(tagWithoutPostsDtos);
+        return fullPostDto;
     }
 }

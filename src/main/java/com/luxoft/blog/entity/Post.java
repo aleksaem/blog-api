@@ -1,25 +1,26 @@
 package com.luxoft.blog.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.luxoft.blog.dto.CommentWithPostDto;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class Post {
 
     @Id
+    @EqualsAndHashCode.Include
     @SequenceGenerator(name = "post_sequence",
             sequenceName = "post_sequence", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE,
@@ -38,5 +39,12 @@ public class Post {
 
     @OneToMany(mappedBy = "post", fetch = FetchType.EAGER)
     private List<Comment> comments;
+
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @OnDelete(action = OnDeleteAction.NO_ACTION)
+    @JoinTable(name = "post_tag",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    private Set<Tag> tags = new HashSet<>();
 
 }

@@ -1,7 +1,5 @@
 package com.luxoft.blog.service;
 
-import com.luxoft.blog.dto.CommentWithPostDto;
-import com.luxoft.blog.dto.PostWithoutCommentDto;
 import com.luxoft.blog.entity.Comment;
 import com.luxoft.blog.entity.Post;
 import com.luxoft.blog.repository.CommentRepository;
@@ -9,7 +7,6 @@ import com.luxoft.blog.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,8 +24,7 @@ public class CommentServiceImpl implements CommentService {
         Post postFromDB = findPostById(postId);
         comment.setPost(postFromDB);
 
-        Comment savedComment = commentRepository.save(comment);
-        return savedComment;
+        return commentRepository.save(comment);
     }
 
     private Post findPostById(Long postId) {
@@ -43,38 +39,13 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<Comment> fetchAllComments(Long postId) {
         Post postfromDB = findPostById(postId);
-        List<Comment> comments = commentRepository.findAllByPost(postfromDB);
-
-        List<CommentWithPostDto> commentsDto = new ArrayList<>();
-        for (Comment comment : comments) {
-            commentsDto.add(toCommentWithPostDto(comment));
-        }
-        return comments;
+        return commentRepository.findAllByPost(postfromDB);
     }
 
     @Override
     public Comment fetchComment(Long postId, Long commentId) {
         Post postFromDB = findPostById(postId);
-        Comment comment = commentRepository.findByCommentIdAndPost(commentId, postFromDB);
 
-        return comment;
-    }
-
-    private CommentWithPostDto toCommentWithPostDto(Comment comment) {
-        CommentWithPostDto commentWithPostDto = new CommentWithPostDto();
-        commentWithPostDto.setCommentId(comment.getCommentId());
-        commentWithPostDto.setContent(comment.getContent());
-        commentWithPostDto.setCreationDate(comment.getCreationDate());
-
-        Post post = comment.getPost();
-        PostWithoutCommentDto postWithoutCommentDto = new PostWithoutCommentDto();
-        postWithoutCommentDto.setPostId(post.getPostId());
-        postWithoutCommentDto.setPostTitle(post.getPostTitle());
-        postWithoutCommentDto.setPostContent(post.getPostContent());
-        postWithoutCommentDto.setStar(post.isStar());
-
-        commentWithPostDto.setPostWithoutCommentDto(postWithoutCommentDto);
-
-        return commentWithPostDto;
+        return commentRepository.findByCommentIdAndPost(commentId, postFromDB);
     }
 }

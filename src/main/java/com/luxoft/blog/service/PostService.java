@@ -1,6 +1,7 @@
 package com.luxoft.blog.service;
 
 import com.luxoft.blog.entity.Post;
+import com.luxoft.blog.entity.Tag;
 
 import java.util.List;
 

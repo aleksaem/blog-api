@@ -3,9 +3,10 @@ package com.luxoft.blog.dto;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
-public class PostWithCommentsDto {
+public class FullPostDto {
 
     private Long id;
 
@@ -16,4 +17,6 @@ public class PostWithCommentsDto {
     private boolean star;
 
     private List<CommentWithoutPostDto> comments;
+
+    private Set<TagWithoutPostsDto> tags;
 }
