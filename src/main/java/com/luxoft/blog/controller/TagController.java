@@ -1,6 +1,5 @@
 package com.luxoft.blog.controller;
 
-import com.luxoft.blog.dto.SimplePost;
 import com.luxoft.blog.entity.Post;
 import com.luxoft.blog.entity.Tag;
 import com.luxoft.blog.service.TagService;
@@ -10,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @RequestMapping("/api/v1")
@@ -48,9 +47,15 @@ public class TagController {
         tagService.deleteTagFromPost(postId, tagId);
     }
 
-    @GetMapping("{id}/tags")
-    public Set<Tag> getAllTags(@PathVariable("id") Long postId) {
-        LOGGER.info("Inside getAllTags of TagController");
-        return tagService.getAllTags(postId);
+    @GetMapping("/posts/{id}/tags")
+    public Set<Tag> getAllTagsToPost(@PathVariable("id") Long postId) {
+        LOGGER.info("Inside getAllTagsToPost of TagController");
+        return tagService.getAllTagsToPost(postId);
+    }
+
+    @GetMapping("/posts/tags/{tagId}")
+    public Set<Post> getAllPostsWithTag(@PathVariable("tagId") Long tagId) {
+        LOGGER.info("Inside getAllPostsWithTag of TagController");
+        return tagService.getAllPostsWithTag(tagId);
     }
 }

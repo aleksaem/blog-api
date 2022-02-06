@@ -41,6 +41,7 @@ public class TagServiceImpl implements TagService {
         Optional<Post> postFromDB = postRepository.findById(postId);
         if(postFromDB.isPresent()) {
             savedTag.getPosts().add(postFromDB.get());
+            savedTag.setTagId(savedTag.getTagId());
             tagRepository.save(savedTag);
             postFromDB.get().getTags().add(savedTag);
             postRepository.save(postFromDB.get());
@@ -71,7 +72,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public Set<Tag> getAllTags(Long postId) {
+    public Set<Tag> getAllTagsToPost(Long postId) {
         Post postFromDB = postRepository.getById(postId);
         return postFromDB.getTags();
     }
@@ -83,7 +84,16 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public Set<Post> getAllPostsWithTags(Set<Tag> tags) {
-        return null;
+    public Set<Post> getAllPostsWithTags(Long firstTagId, Long secondTagId) {
+        Tag firstTag = tagRepository.getById(firstTagId);
+        Tag secondTag = tagRepository.getById(secondTagId);
+
+        Set<Post> postsWithFirstTag = firstTag.getPosts();
+        Set<Post> postsWithSecondTag = secondTag.getPosts();
+
+        Set<Post> result = new HashSet<>();
+        result.addAll(postsWithFirstTag);
+        result.addAll(postsWithSecondTag);
+        return result;
     }
 }

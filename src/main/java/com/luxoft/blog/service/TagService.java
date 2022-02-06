@@ -15,9 +15,10 @@ public interface TagService {
 
     void deleteTagFromPost(Long postId, Long tagId);
 
-    Set<Tag> getAllTags(Long postId);
+    Set<Tag> getAllTagsToPost(Long postId);
 
     Set<Post> getAllPostsWithTag(Long tagId);
 
-    Set<Post> getAllPostsWithTags(Set<Tag> tags);
+    Set<Post> getAllPostsWithTags(Long firstTagId, Long secondTagId);
+
 }

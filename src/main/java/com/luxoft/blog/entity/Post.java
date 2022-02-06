@@ -13,6 +13,7 @@ import java.util.Set;
 
 @Entity
 @Data
+@ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -47,4 +48,19 @@ public class Post {
             inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags = new HashSet<>();
 
+    @Override
+    public String toString() {
+        Set<String> tagNames = new HashSet<>();
+        for (Tag tag : tags) {
+            tagNames.add(tag.getTagName());
+        }
+        return "Post{" +
+                "postId=" + postId +
+                ", postTitle='" + postTitle + '\'' +
+                ", postContent='" + postContent + '\'' +
+                ", star=" + star +
+                ", comments=" + comments +
+                ", tags=" + tagNames +
+                '}';
+    }
 }

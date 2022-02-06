@@ -30,4 +30,18 @@ public class Tag {
     @ManyToMany(mappedBy = "tags", cascade = CascadeType.PERSIST)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     private Set<Post> posts = new HashSet<>();
+
+    @Override
+    public String toString() {
+        Set<String> postNames = new HashSet<>();
+        for (Post post : posts) {
+            postNames.add(post.getPostTitle());
+        }
+
+        return "Tag{" +
+                "tagId=" + tagId +
+                ", tagName='" + tagName + '\'' +
+                ", posts=" + postNames +
+                '}';
+    }
 }

@@ -105,18 +105,21 @@ class PostServiceTest {
     @Test
     void testSavePost() {
         Post post1 = Post.builder()
+                .postId(1L)
                 .postTitle("Films")
                 .postContent("Films are soo cool")
                 .star(true)
                 .build();
 
         Post post2 = Post.builder()
+                .postId(2L)
                 .postTitle("Cartoons")
                 .postContent("Cartoons are soo cool")
                 .star(true)
                 .build();
 
         Post post3 = Post.builder()
+                .postId(3L)
                 .postTitle("Food")
                 .postContent("Food is soo cool")
                 .star(true)
