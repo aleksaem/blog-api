@@ -148,9 +148,9 @@ class PostControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)))
-                .andExpect(jsonPath("$[1].id").value(2L))
-                .andExpect(jsonPath("$[2].title").value("Post 3"))
-                .andExpect(jsonPath("$[0].content").value("Content 1"));
+                .andExpect(jsonPath("$[1].postId").value(2L))
+                .andExpect(jsonPath("$[2].postTitle").value("Post 3"))
+                .andExpect(jsonPath("$[0].postContent").value("Content 1"));
 
         verify(postService, times(1)).fetchPostsList();
     }
@@ -199,9 +199,9 @@ class PostControllerTest {
                         .get("/api/v1/posts?postTitle={postTitle}", "Post")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[1].id").value(3L))
-                .andExpect(jsonPath("$[0].title").value("Post"))
-                .andExpect(jsonPath("$[0].content").value("Content 1"));
+                .andExpect(jsonPath("$[1].postId").value(3L))
+                .andExpect(jsonPath("$[0].postTitle").value("Post"))
+                .andExpect(jsonPath("$[0].postContent").value("Content 1"));
 
         verify(postService, times(1)).fetchPostsByTitle("Post");
     }
@@ -235,10 +235,9 @@ class PostControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[1].title").value("Food"))
-                .andExpect(jsonPath("$[0].title").value("Animals"))
-                .andExpect(jsonPath("$[0].id").value(1L));
-
+                .andExpect(jsonPath("$[1].postTitle").value("Food"))
+                .andExpect(jsonPath("$[0].postTitle").value("Animals"))
+                .andExpect(jsonPath("$[0].postId").value(1L));
         verify(postService, times(1)).sortPostsByTitle();
     }
 

@@ -8,11 +8,11 @@ import java.util.Set;
 @Data
 public class FullPostDto {
 
-    private Long id;
+    private Long postId;
 
-    private String title;
+    private String postTitle;
 
-    private String content;
+    private String postContent;
 
     private boolean star;
 

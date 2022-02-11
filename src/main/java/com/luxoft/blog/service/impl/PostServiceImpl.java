@@ -1,4 +1,4 @@
-package com.luxoft.blog.service;
+package com.luxoft.blog.service.impl;
 
 import com.luxoft.blog.entity.Comment;
 import com.luxoft.blog.entity.Post;
@@ -6,6 +6,7 @@ import com.luxoft.blog.entity.Tag;
 import com.luxoft.blog.repository.CommentRepository;
 import com.luxoft.blog.repository.PostRepository;
 import com.luxoft.blog.repository.TagRepository;
+import com.luxoft.blog.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -16,15 +17,23 @@ import java.util.Optional;
 @Service
 public class PostServiceImpl implements PostService {
 
-    @Autowired
     private PostRepository postRepository;
 
-    @Autowired
     private CommentRepository commentRepository;
 
+    @Autowired
+    public void setPostRepository(PostRepository postRepository) {
+        this.postRepository = postRepository;
+    }
+
+    @Autowired
+    public void setCommentRepository(CommentRepository commentRepository) {
+        this.commentRepository = commentRepository;
+    }
+
     @Override
-    public void savePost(Post post) {
-        postRepository.save(post);
+    public Post savePost(Post post) {
+        return postRepository.save(post);
     }
 
     @Override
@@ -34,9 +43,9 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void updatePost(Long postId, Post post) {
+    public Post updatePost(Long postId, Post post) {
         post.setPostId(postId);
-        postRepository.save(post);
+        return postRepository.save(post);
     }
 
     @Override

@@ -13,5 +13,5 @@ public class CommentWithPostDto {
 
     private String content;
 
-    private SimplePost simplePost;
+    private SimplePostDto simplePostDto;
 }

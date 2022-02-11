@@ -4,11 +4,10 @@ import com.luxoft.blog.entity.Post;
 import com.luxoft.blog.entity.Tag;
 import com.luxoft.blog.repository.PostRepository;
 import com.luxoft.blog.repository.TagRepository;
+import com.luxoft.blog.service.impl.TagServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -18,17 +17,22 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
-class TagServiceTest {
+class TagServiceImplTest {
 
-    @MockBean
     private TagRepository tagRepository;
 
-    @MockBean
     private PostRepository postRepository;
 
-    @Autowired
-    private TagService tagService;
+    private TagServiceImpl tagService;
+
+    @BeforeEach
+    void setUp() {
+        postRepository = mock(PostRepository.class);
+        tagRepository = mock(TagRepository.class);
+        tagService = new TagServiceImpl();
+        tagService.setTagRepository(tagRepository);
+        tagService.setPostRepository(postRepository);
+    }
 
     @Test
     @DisplayName("Test save tag is successful")
@@ -140,7 +144,7 @@ class TagServiceTest {
 
     @Test
     @DisplayName("Test get all tags to post")
-    public void testGetAllTags(){
+    public void testGetAllTags() {
         Tag tag1 = Tag.builder()
                 .tagId(1L)
                 .tagName("Tag 1")
@@ -181,7 +185,7 @@ class TagServiceTest {
 
     @Test
     @DisplayName("Test get all posts that contain particular tag")
-    public void testGetPostsWithTag(){
+    public void testGetPostsWithTag() {
         Tag tag = Tag.builder()
                 .tagId(1L)
                 .tagName("Tag")
@@ -228,7 +232,7 @@ class TagServiceTest {
 
     @Test
     @DisplayName("Test get all posts that contain one of two particular tags or both of them")
-    public void testGetPostsWithTags(){
+    public void testGetPostsWithTags() {
         Tag tag1 = Tag.builder()
                 .tagId(1L)
                 .tagName("Tag 1")

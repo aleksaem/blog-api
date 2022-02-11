@@ -7,11 +7,11 @@ import java.util.List;
 
 public interface PostService {
 
-    void savePost(Post post);
+    Post savePost(Post post);
 
     List<Post> fetchPostsList();
 
-    void updatePost(Long postId, Post post);
+    Post updatePost(Long postId, Post post);
 
     void deletePostById(Long postId);
 

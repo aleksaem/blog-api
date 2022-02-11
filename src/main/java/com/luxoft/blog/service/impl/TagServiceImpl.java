@@ -1,9 +1,10 @@
-package com.luxoft.blog.service;
+package com.luxoft.blog.service.impl;
 
 import com.luxoft.blog.entity.Post;
 import com.luxoft.blog.entity.Tag;
 import com.luxoft.blog.repository.PostRepository;
 import com.luxoft.blog.repository.TagRepository;
+import com.luxoft.blog.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,11 +13,19 @@ import java.util.*;
 @Service
 public class TagServiceImpl implements TagService {
 
-    @Autowired
     TagRepository tagRepository;
 
-    @Autowired
     PostRepository postRepository;
+
+    @Autowired
+    public void setTagRepository(TagRepository tagRepository) {
+        this.tagRepository = tagRepository;
+    }
+
+    @Autowired
+    public void setPostRepository(PostRepository postRepository) {
+        this.postRepository = postRepository;
+    }
 
     @Override
     public Tag saveTag(Tag tag) {
@@ -25,6 +34,7 @@ public class TagServiceImpl implements TagService {
         for (Tag existingTag : allTags) {
             if (existingTag.getTagName().equals(tag.getTagName())) {
                 exist = true;
+                break;
             }
         }
 
@@ -44,6 +54,7 @@ public class TagServiceImpl implements TagService {
             savedTag.setTagId(savedTag.getTagId());
             tagRepository.save(savedTag);
             postFromDB.get().getTags().add(savedTag);
+            postFromDB.get().setPostId(postId);
             postRepository.save(postFromDB.get());
             return savedTag;
         } else{

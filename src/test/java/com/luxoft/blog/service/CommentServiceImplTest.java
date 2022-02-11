@@ -4,6 +4,8 @@ import com.luxoft.blog.entity.Comment;
 import com.luxoft.blog.entity.Post;
 import com.luxoft.blog.repository.CommentRepository;
 import com.luxoft.blog.repository.PostRepository;
+import com.luxoft.blog.service.impl.CommentServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,16 +19,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-public class CommentServiceTest {
+public class CommentServiceImplTest {
 
-    @MockBean
     CommentRepository commentRepository;
 
-    @MockBean
     PostRepository postRepository;
 
-    @Autowired
-    CommentService commentService;
+    CommentServiceImpl commentService;
+
+    @BeforeEach
+    void setUp() {
+        postRepository = mock(PostRepository.class);
+        commentRepository = mock(CommentRepository.class);
+        commentService = new CommentServiceImpl();
+        commentService.setCommentRepository(commentRepository);
+        commentService.setPostRepository(postRepository);
+    }
 
     @Test
     public void saveCommentTest() {

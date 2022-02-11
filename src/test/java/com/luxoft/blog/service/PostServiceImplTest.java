@@ -3,6 +3,8 @@ package com.luxoft.blog.service;
 
 import com.luxoft.blog.entity.Post;
 import com.luxoft.blog.repository.PostRepository;
+import com.luxoft.blog.service.impl.PostServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +22,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-class PostServiceTest {
+class PostServiceImplTest {
 
-    @Autowired
-    private PostService postService;
+    private PostServiceImpl postService;
 
-    @MockBean
     private PostRepository postRepository;
+
+    @BeforeEach
+    void setUp() {
+        postRepository = mock(PostRepository.class);
+        postService = new PostServiceImpl();
+        postService.setPostRepository(postRepository);
+    }
 
     @Test
     void whenValidPostTitle_thenPostShouldBeFound() {
